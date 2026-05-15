@@ -1,0 +1,11 @@
+{
+	"id": "inline-ai-tutor-assistant-plugin",
+	"name": "Inline AI Tutor+Assistant",
+	"version": "0.0.1",
+	"minAppVersion": "0.15.0",
+	"description": "Working draft on an inline AI assistant",
+	"author": "kradkahaddi",
+	"authorUrl": null,
+	"fundingUrl": null,
+	"isDesktopOnly": true
+}

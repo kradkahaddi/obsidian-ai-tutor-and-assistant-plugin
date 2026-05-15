@@ -1,0 +1,14 @@
+{
+  "name": "obsidian-local-gemma",
+  "version": "0.0.1",
+  "main": "main.js",
+  "scripts": {
+    "dev": "esbuild src/main.ts --bundle --outfile=main.js --format=cjs --external:obsidian --external:@codemirror/* --sourcemap=inline --watch",
+    "build": "esbuild src/main.ts --bundle --outfile=main.js --format=cjs --external:obsidian -external:@codemirror/* --minify"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.0",
+    "obsidian": "1.7.2",
+    "typescript": "6.0.3"
+  }
+}
