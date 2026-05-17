@@ -4,9 +4,10 @@
   "main": "main.js",
   "scripts": {
     "dev": "esbuild src/main.ts --bundle --outfile=main.js --format=cjs --external:obsidian --external:@codemirror/* --sourcemap=inline --watch",
-    "build": "esbuild src/main.ts --bundle --outfile=main.js --format=cjs --external:obsidian -external:@codemirror/* --minify"
+    "build": "tsc --noEmit && esbuild src/main.ts --bundle --outfile=main.js --format=cjs --external:obsidian --external:@codemirror/* --minify"
   },
   "devDependencies": {
+    "@types/node": "^25.8.0",
     "esbuild": "0.28.0",
     "obsidian": "1.7.2",
     "typescript": "6.0.3"

@@ -1,19 +1,31 @@
 import {App, Editor, MarkdownView, Modal, Notice, Menu, Plugin} from 'obsidian';
-// import {DEFAULT_SETTINGS, MyPluginSettings, SampleSettingTab} from "./settings";
+import {DEFAULT_SETTINGS, InLineAITutorPluginSettings, InLineAITutorSettingsTab} from "./settings";
+import {viewPluginFactoryMethod, submitToLLM} from "./editor-plugin";
 
-import {inlineAssistantPlugin, submitToLLM} from "./editor-plugin";
 
-export default class MyPlugin extends Plugin {
+export default class InLineAITutorPlugin extends Plugin {	
+	settings:InLineAITutorPluginSettings;
+
+	async loadSettings(){
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData())
+	}
+	
+	async saveSettings(){
+		await this.saveData(this.settings);
+	}
 	async onload() {
+		await this.loadSettings();
 
+		// console.log(this.settings);
 		this.addRibbonIcon("paper-plane", "Print to console", 
 							()=>{
 									new Notice("testing plugins");
 									console.log('testing plugins');
 								}
 						)
-
-		this.registerEditorExtension([inlineAssistantPlugin])
+		this.addSettingTab(new InLineAITutorSettingsTab(this.app, this));
+		
+		this.registerEditorExtension([viewPluginFactoryMethod(this)])
 
 		this.addCommand({
 			id: "submit-ai-prompt",
@@ -23,13 +35,13 @@ export default class MyPlugin extends Plugin {
 				key: "L"
 			}],
 			editorCallback: async (_editor, view) => {
-				console.log('hot key detected');
+				// console.log('hot key detected');
 				const buttonCheck = document.getElementById('ai-submit-button');
 				if (buttonCheck === null) return;
 				// buttonCheck.style.display = "none";
 				// @ts-expect-error
 				const editorView = view.editor.cm as EditorView;
-				await submitToLLM(editorView);
+				await submitToLLM(editorView, this);
 			}
 		})
 	}
