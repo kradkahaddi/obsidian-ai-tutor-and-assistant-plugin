@@ -1,4 +1,4 @@
-import { syntaxTree } from '@codemirror/language';
+// import { syntaxTree } from '@codemirror/language';
 import { RangeSetBuilder } from '@codemirror/state';
 import {requestUrl, Editor, Notice } from "obsidian";
 // import { Buffer } from "buffer";
