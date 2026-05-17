@@ -4,7 +4,7 @@ import {viewPluginFactoryMethod, submitToLLM} from "./editor-plugin";
 
 
 export default class InLineAITutorPlugin extends Plugin {	
-	settings:InLineAITutorPluginSettings;
+	settings!:InLineAITutorPluginSettings;
 
 	async loadSettings(){
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData())
