@@ -138,6 +138,9 @@ export async function submitToLLM(view:EditorView, plugin:InLineAITutorPlugin){
     // new Notice("submitting to LLM");
     const submitTime = formatDate(Date.now());
     const {content, beforeLine, afterLine} = getLLMquery(view);
+    
+    if (content.contains("@response")) return;
+    
     console.log("submitted at:", submitTime);
     // console.log(content);
     

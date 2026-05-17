@@ -3,9 +3,9 @@
 	"name": "Inline AI Tutor+Assistant",
 	"version": "0.0.1",
 	"minAppVersion": "0.15.0",
-	"description": "Working draft on an inline AI assistant",
-	"author": "kradkahaddi",
-	"authorUrl": null,
+	"description": "Working draft on an inline AI assistant and tutor",
+	"author": "Aashish Nikhil Ghosh",
+	"authorUrl": "https://github.com/kradkahaddi",
 	"fundingUrl": null,
 	"isDesktopOnly": true
 }
