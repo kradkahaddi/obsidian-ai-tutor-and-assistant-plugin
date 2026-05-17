@@ -5,6 +5,7 @@ import {viewPluginFactoryMethod, submitToLLM} from "./editor-plugin";
 
 export default class InLineAITutorPlugin extends Plugin {	
 	settings!:InLineAITutorPluginSettings;
+	systemPrompt!:string;
 
 	async loadSettings(){
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData())
@@ -13,8 +14,16 @@ export default class InLineAITutorPlugin extends Plugin {
 	async saveSettings(){
 		await this.saveData(this.settings);
 	}
+
+	async loadSystemPrompt(){
+		const path = `${this.manifest.dir}/configs/default_sys_prompt.md`;
+		this.systemPrompt = await this.app.vault.adapter.read(path);
+	}
 	async onload() {
 		await this.loadSettings();
+		await this.loadSystemPrompt();
+
+		// console.log(this.systemPrompt);
 
 		// console.log(this.settings);
 		this.addRibbonIcon("paper-plane", "Print to console", 

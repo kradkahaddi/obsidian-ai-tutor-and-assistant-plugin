@@ -139,11 +139,13 @@ export async function submitToLLM(view:EditorView, plugin:InLineAITutorPlugin){
     const submitTime = formatDate(Date.now());
     const {content, beforeLine, afterLine} = getLLMquery(view);
     console.log("submitted at:", submitTime);
-    console.log(content);
+    // console.log(content);
     
     const defaultType = plugin.settings.defaultContext;
     const firstWord = content.split(" ")[0];
     const options = firstWord.split(":").slice(1, undefined);
+    // console.log(options)
+    if((options.length===1) &&(options[0]==="")) options.length = 0;
     // let answer:string;
     let beforeText: maybeString=null, afterText: maybeString=null;
 
@@ -173,10 +175,10 @@ export async function submitToLLM(view:EditorView, plugin:InLineAITutorPlugin){
     // }'
     const answer = await pingLLM(plugin, content, beforeText, afterText);
     if(answer){
-      new Notice("Response received!")
+      // new Notice("Response received!")
       console.log(answer);
       const receiveTime = formatDate(Date.now());
-      console.log("received at:", receiveTime);
+      // console.log("received at:", receiveTime);
     
       appendAnswer(view, answer, submitTime, receiveTime);
     }
@@ -206,6 +208,7 @@ function appendAnswer(view:EditorView, text:string, submitTime:string, receiveTi
         selection: {anchor: currLine.to+formattedText.length}
     })
 }
+
 async function pingLLM(plugin:InLineAITutorPlugin, query:string, beforeText:maybeString, afterText:maybeString):Promise<string|null>{
     const base_url = plugin.settings.baseURL;
     const url = `${base_url}/v1/chat/completions`;
@@ -250,7 +253,7 @@ async function pingLLM(plugin:InLineAITutorPlugin, query:string, beforeText:mayb
     // const beforeText = `${separator} START OF DOCUMENT PART ABOVE QUERY ${separator}\n${beforeLines.join("\n")}\n${separator} END OF DOCUMENT PART ABOVE QUERY ${separator}\n`;
     // const afterText  = `${separator} START OF DOCUMENT PART BELOW QUERY ${separator}\n${afterLines.join("\n")}\n${separator} END OF DOCUMENT PART BELOW QUERY ${separator}\n`;;
 
-    console.log('query', query)
+    // console.log('query', query)
     const payload = {
         url,
         method,
@@ -261,7 +264,7 @@ async function pingLLM(plugin:InLineAITutorPlugin, query:string, beforeText:mayb
         body: JSON.stringify({
           model,
           messages: [
-            {role: "system", content: system_prompt},
+            {role: "system", content: plugin.systemPrompt},
             {role: "user", 
               content: [
                 // {type: "text", text: beforeText ?? "\n"},
@@ -337,19 +340,20 @@ export class InlineAIWidget extends WidgetType {
   }
 
   toDOM(view:EditorView):HTMLElement {
-    const queryWrapper = document.createElement('div');
+    // const queryWrapper = document.createElement('div');
     const button = document.createElement('button');
     button.innerText = "submit";
     button.style.position = "absolute";
     button.style.right = '0px';
+    button.style.top = "0px";
     button.id = "ai-submit-button"
     
     button.onclick = async () => {
         submitToLLM(this.view, this.plugin);
         // button.style.display = "none";
     };
-    queryWrapper.appendChild(button);
-    return queryWrapper;
+    // queryWrapper.appendChild(button);
+    return button;
   }
 }
 
@@ -387,19 +391,20 @@ export function viewPluginFactoryMethod(_plugin:InLineAITutorPlugin){
       while(number>1){
         number--;
         let currLine = view.state.doc.line(number);
-        if (currLine.text.trim() === ""){
-          // console.log('breaking point')
-          break;
-        }
-        else{
-          // console.log(`line_qNo: ${number} line: ${currLine.number}`, "text: ", currLine.text)
-          paraLines.unshift(currLine.text);
-        }
+        if (currLine.text.trim() === "") break;
+        else paraLines.unshift(currLine.text);
+      }
+
+      while (number < (view.state.doc.lines-1)){
+        number++;
+        const AftLine = view.state.doc.line(number);
+        if (AftLine.text.trim()==="") break;
+        else paraLines.push(AftLine.text);
       }
       
       const paraText = paraLines.join('\n');
-      
-      // console.log("paraText: ", paraText)
+      // console.log(paraText)
+      console.log("paraText: ", paraText)
       
       const prevLine = line.number > 1 ? view.state.doc.line(line.number-1): null;
       // console.log("previous line: ", prevLine?.text);
