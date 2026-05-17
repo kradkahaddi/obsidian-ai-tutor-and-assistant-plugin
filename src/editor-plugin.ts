@@ -407,7 +407,7 @@ export function viewPluginFactoryMethod(_plugin:InLineAITutorPlugin){
       
       const paraText = paraLines.join('\n');
       // console.log(paraText)
-      console.log("paraText: ", paraText)
+      // console.log("paraText: ", paraText)
       
       const prevLine = line.number > 1 ? view.state.doc.line(line.number-1): null;
       // console.log("previous line: ", prevLine?.text);
