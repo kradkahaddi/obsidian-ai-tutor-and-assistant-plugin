@@ -36,11 +36,12 @@ export type maybeString = string | null;
 
 export const IMAGE_FILE_TYPES = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg']
 
-async function formatTextBlob(plugin:InLineAITutorPlugin, text:string, idx:number=1){
+async function formatTextBlob(plugin:InLineAITutorPlugin, text:string, idx:number=1, isDoc:boolean=true){
   // const regexPattern: RegExp = new RegExp("\!\[\[([\w\s.\-_]+)\]\]", 'g');
   const file = plugin.app.workspace.getActiveFile();
   const sourcePath = file?.path as string;
   const regexPattern = /\!\[\[([\w\s_\-]+\.\w+)\]\]|\!\[.+\]\(([\w\s_\-]+\.\w+)\)/g;
+  // const regexPatternText = /\!\[\[[\w\s_\-]+\.\w+\]\]|\!\[.+\]\(([\w\s_\-]+\.\w+)\)/g
   const lines = text.split('\n');
   const buffer: string[] = [];
   const contentArray:object[] = [];
@@ -61,11 +62,18 @@ async function formatTextBlob(plugin:InLineAITutorPlugin, text:string, idx:numbe
 
   for (const line of lines) {
     const matches = [...line.matchAll(regexPattern)];
+    // console.log(matches)
+    const chkLine = line.replace(regexPattern, "");
+    // const textMatches = [...line.matchAll(regexPatternText)];
+    // console.log('text match on image lines', textMatches)
     // console.log([...'![[Pasted image 20260517041407.png]]'.matchAll(regexPattern)]);
     // console.log("LINE:", JSON.stringify(line))
     if (matches.length>0){
       // extract image, convert to base
       interimObj = []
+      // console.log(chkLine);
+      if (chkLine.trim()!=="") contentArray.push({type:"text", text: `text inline with image(s) below: ${line.replace(regexPattern, '<imagePlaceHolder>')}`});
+
       for(const match of matches){
         const matched = match[1] ?? match[2];
         if (IMAGE_FILE_TYPES.contains(matched.split('.')[1])){
@@ -76,9 +84,26 @@ async function formatTextBlob(plugin:InLineAITutorPlugin, text:string, idx:numbe
             const data = await plugin.app.vault.readBinary(target);
             const fileBuffer = Buffer.isBuffer(data) ? data : Buffer.from(data as ArrayBuffer);
             const imStr = `data:image/${matched.split('.')[1]};base64,${fileBuffer.toString("base64")}}`
-            contentArray.push({type:"text", text: `<position_${number}>`});
+            
+            const posTagStart = isDoc? `$<position_${number}>`: "";
+            const posTagEnd   = isDoc? `$</position_${number}>`: "";
+
+            // const befText = textMatches[1]??textMatches[4];
+            // const aftText = textMatches[2]??textMatches[5];
+            
+
+            // if(textMatches.length>0){
+            //   console.log("text matches", textMatches);
+            //   console.log(befText);
+            //   console.log(aftText);
+            // }
+
+            contentArray.push({type:"text", text: posTagStart});
+            
+            // if(befText) contentArray.push({type:"text", text:befText});
             contentArray.push({type:"image_url", image_url: {url:imStr}});
-            contentArray.push({type:"text", text: `</position_${number}>`});
+            // if(aftText) contentArray.push({type:"text", text:aftText});
+            contentArray.push({type:"text", text: posTagEnd});
             number++;
           }
         }
@@ -86,7 +111,10 @@ async function formatTextBlob(plugin:InLineAITutorPlugin, text:string, idx:numbe
     }
     else if (line.trim()===""){
         // merge buffer
-        contentArray.push({type:"text", text: `<position_${number}>${buffer.join("\n")}<position_${number}`});
+        const posTagStart = isDoc? `$<position_${number}>`: "";
+        const posTagEnd   = isDoc? `$</position_${number}>`: "";
+
+        contentArray.push({type:"text", text: `${posTagStart}${buffer.join("\n")}${posTagEnd}`});
         number++;
         buffer.length = 0;
     }
@@ -97,6 +125,16 @@ async function formatTextBlob(plugin:InLineAITutorPlugin, text:string, idx:numbe
     // add position number and append the message to the content array.
   }
 
+  if (buffer.length>0){
+    const posTagStart = isDoc? `$<position_${number}>`: "";
+        const posTagEnd   = isDoc? `$</position_${number}>`: "";
+
+        contentArray.push({type:"text", text: `${posTagStart}${buffer.join("\n")}${posTagEnd}`});
+        number++;
+        buffer.length = 0;
+  }
+
+  // console.log(contentArray)
   return {contentArray, number}
 }
 function getQueryContext(view:EditorView, beforeLine:number, afterLine:number, sectionOnly:boolean=false)
@@ -257,6 +295,10 @@ async function pingLLM(plugin:InLineAITutorPlugin, query:string, beforeText:mayb
     // const afterText  = `${separator} START OF DOCUMENT PART BELOW QUERY ${separator}\n${afterLines.join("\n")}\n${separator} END OF DOCUMENT PART BELOW QUERY ${separator}\n`;;
 
     // console.log('query', query)
+    //  ${query.split(" ").slice(1, undefined).join(" ")}
+    let {contentArray, number} = await formatTextBlob(plugin, query.split(" ").slice(1, undefined).join(" "), num, false)
+    const queryArrayFormatted = contentArray;
+    console.log(queryArrayFormatted)
     const payload = {
         url,
         method,
@@ -275,7 +317,9 @@ async function pingLLM(plugin:InLineAITutorPlugin, query:string, beforeText:mayb
                 {type: "text", text: `<position_${active_num}> *This is the position of the user question/prompt currently posed to you* </position_${active_num}>`},
                 // {type: "text", text: afterText  ?? "\n"},
                 ...aftArrayFormatted,
-                {type: "text", text: `current user prompt: ${query.split(" ").slice(1, undefined).join(" ")}`},
+                // {type: "text", text: `current user prompt: ${query.split(" ").slice(1, undefined).join(" ")}`},
+                {type: "text", text: `current user prompt: `},
+                ...queryArrayFormatted,
               ]}
           ],
           temperature:0.9,
