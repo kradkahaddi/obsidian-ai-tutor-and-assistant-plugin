@@ -1,11 +1,10 @@
 {
-	"id": "inline-ai-tutor-assistant-plugin",
+	"id": "inline-ai-tutor-assistant",
 	"name": "Inline AI Tutor+Assistant",
 	"version": "0.0.1",
 	"minAppVersion": "0.15.0",
-	"description": "Working draft on an inline AI assistant and tutor",
+	"description": "an inline AI assistant and tutor that works with local llm setups.",
 	"author": "Aashish Nikhil Ghosh",
 	"authorUrl": "https://github.com/kradkahaddi",
-	"fundingUrl": null,
 	"isDesktopOnly": true
 }
