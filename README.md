@@ -3,6 +3,8 @@
 ## Note:
 This plugin is in active development and is in alpha stages. Please regularly save your notebooks or create a secondary vault to test things. The plugin works by having a conversation with AI models directly in your document. see the example at the end.
 
+The gemma hackathon version is present in the release/hackathon branch.
+
 ## Installation
 1. unzip or git clone into the \<vault>/.obsidian/plugins/\<the folder goes here>
 2. if cloning, then do an npm run build
