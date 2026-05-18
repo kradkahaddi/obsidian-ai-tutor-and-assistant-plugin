@@ -11,7 +11,7 @@ This plugin is in active development and is in alpha stages. Please regularly sa
 
 ## Usage
 1. set the correct url and model name in the settings tab (open settings and see the plugin name in the left side pane.)
-2. url should just be the http(s)://IP_ADDRESS or URI:PORT (v1/chat/completions is added automatically) so if doing local then it is probably http://127.0.0.1:8xxx
+2. url should just be the http(s)://IP_ADDRESS or URI:PORT (v1/chat/completions is added automatically) so if doing local then it is probably http://127.0.0.1:8xxx (no trailing /)
 3. The LLM query interface is triggered by typing @assistant at the start of a fresh paragraph. There must be a an empty line between typing @assistant and any other content.
 4. CMD/CTRL + SHIFT + L is the default hot key to submit (when the button is visible)
 5. you can control the amount of context that the model has access to:
