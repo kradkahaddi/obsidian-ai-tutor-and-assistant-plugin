@@ -19,6 +19,7 @@
     5. BE SURE TO NOT ADD ANY SPACE WHEN SPECIFYING CONTEXT. @assistant:doc is not the same as "@assistant: doc" or "@assistant :doc" or "@assistant : doc". only "@assistant:doc" no-spaces will trigger the llm call feature.
 6. The plugin supports images too, make sure your model and framework support them.
 7. currently lm-studio and llama.cpp are supported.
+8. LLM responses are prefixed by **@response**
 
 
 See this image for an example of correct calling (pardon the dark mode background):
