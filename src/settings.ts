@@ -6,7 +6,7 @@ import {App, PluginSettingTab, Setting} from "obsidian"
 export interface InLineAITutorPluginSettings {
 	baseURL:string;
 	modelName:string;
-	framework:string;
+	// framework:string;
 	defaultContext:string;
 	// inlineLLMId:string;
 	// inlineLLMResponseId:string;
@@ -15,7 +15,7 @@ export interface InLineAITutorPluginSettings {
 export const DEFAULT_SETTINGS: Partial<InLineAITutorPluginSettings> = {
 	baseURL: "http://127.0.0.1:1234",
 	modelName: "google/gemma-4-26b-a4b",
-	framework: "lmstudio",
+	// framework: "lmstudio",
 	defaultContext: "doc",
 	// inlineLLMId: "assistant",
 	// inlineLLMResponseId:"response",
@@ -76,19 +76,19 @@ export class InLineAITutorSettingsTab extends PluginSettingTab{
 		// 			})
 		// 	})
 
-		new Setting(containerEl)
-			.setName("backend")
-			.addDropdown((dropdown)=> {
-				dropdown
-					.addOption("lmstudio", "LM-Studio")
-					.addOption("llamacpp", "llama.cpp")
-					.addOption("ollama", "ollama")
-					.setValue(this.plugin.settings.framework)
-					.onChange(async (value:string)=> {
-						this.plugin.settings.framework = value;
-						await this.plugin.saveSettings();
-					})
-			})
+		// new Setting(containerEl)
+		// 	.setName("backend")
+		// 	.addDropdown((dropdown)=> {
+		// 		dropdown
+		// 			.addOption("lmstudio", "LM-Studio")
+		// 			.addOption("llamacpp", "llama.cpp")
+		// 			.addOption("ollama", "ollama")
+		// 			.setValue(this.plugin.settings.framework)
+		// 			.onChange(async (value:string)=> {
+		// 				this.plugin.settings.framework = value;
+		// 				await this.plugin.saveSettings();
+		// 			})
+		// 	})
 		
 		new Setting(containerEl)
 			.setName("default context")

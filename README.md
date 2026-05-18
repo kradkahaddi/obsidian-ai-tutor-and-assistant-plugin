@@ -1,5 +1,8 @@
 # Inline AI Tutor and Assistant Plugin
 
+## Note:
+This plugin is in active development and is in alpha stages. Please regularly save your notebooks or create a secondary vault to test things. The plugin works by having a conversation with AI models directly in your document. see the example at the end.
+
 ## Installation
 1. unzip or git clone into the \<vault>/.obsidian/plugins/\<the folder goes here>
 2. if cloning, then do an npm run build
@@ -20,7 +23,8 @@
 6. The plugin supports images too, make sure your model and framework support them.
 7. currently lm-studio and llama.cpp are supported.
 8. LLM responses are prefixed by **@response**
+9. if the plugin sees @assistant at the start of line and sees there is no new-line above it, it will insert a new line automatically.
 
-
-See this image for an example of correct calling (pardon the dark mode background):
+## Example screenshot
+See this image for an example of correct calling
 ![alt text](assets/image.png)
