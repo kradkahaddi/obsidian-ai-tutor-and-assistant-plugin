@@ -21,5 +21,5 @@
 7. currently lm-studio and llama.cpp are supported.
 
 
-See this image for an example of correct calling:
+See this image for an example of correct calling (pardon the dark mode background):
 ![alt text](assets/image.png)
