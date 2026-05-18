@@ -195,7 +195,7 @@ function appendAnswer(view:EditorView, text:string, submitTime:string, receiveTi
     let currLine = view.state.doc.lineAt(pos);
     while (currLine.number<view.state.doc.lines){
       currLine = view.state.doc.line(currLine.number + 1);
-      if (currLine.text.trim()===""){
+      if ((currLine.text.trim()==="")||(currLine.text.startsWith("## "))){
         currLine = view.state.doc.line(currLine.number-1);
         break;
       }
@@ -281,8 +281,19 @@ async function pingLLM(plugin:InLineAITutorPlugin, query:string, beforeText:mayb
           temperature:0.9,
         })
     }
-    const response = await requestUrl(payload);
-  return response.json.choices?.[0]?.message?.content ?? null;
+   
+  let response;
+  const notice = new Notice("llm is thinking...", 0);
+  try{
+    response = await requestUrl(payload);
+    notice.setMessage("response is ready!")
+    setTimeout(()=>notice.hide(), 1500);
+  }
+  catch(e){
+    notice.setMessage("llm call failed");
+    setTimeout(()=>notice.hide(), 1500)
+  }
+  return response?.json.choices?.[0]?.message?.content ?? null;
 }
 
 function getLLMquery(view:EditorView) {
@@ -315,7 +326,7 @@ function getLLMquery(view:EditorView) {
     while(number<(numLines-1)){
       number++;
       const nextLine = view.state.doc.line(number);
-      if (nextLine && (nextLine?.text.trim() !== "")){
+      if (nextLine && ((nextLine?.text.trim() !== "")||(nextLine?.text.startsWith("## ")))){
         allLines.push(nextLine.text)
       }
       else{
@@ -343,20 +354,20 @@ export class InlineAIWidget extends WidgetType {
   }
 
   toDOM(view:EditorView):HTMLElement {
-    // const queryWrapper = document.createElement('div');
+    const queryWrapper = document.createElement('div');
     const button = document.createElement('button');
     button.innerText = "submit";
     button.style.position = "absolute";
     button.style.right = '0px';
-    button.style.top = "0px";
+    // button.style.bottom = "0px";
     button.id = "ai-submit-button"
     
     button.onclick = async () => {
         submitToLLM(this.view, this.plugin);
         // button.style.display = "none";
     };
-    // queryWrapper.appendChild(button);
-    return button;
+    queryWrapper.appendChild(button);
+    return queryWrapper;
   }
 }
 
@@ -398,10 +409,11 @@ export function viewPluginFactoryMethod(_plugin:InLineAITutorPlugin){
         else paraLines.unshift(currLine.text);
       }
 
+      number = line.number;
       while (number < (view.state.doc.lines-1)){
         number++;
         const AftLine = view.state.doc.line(number);
-        if (AftLine.text.trim()==="") break;
+        if ((AftLine.text.trim()==="") || (AftLine.text.startsWith("## "))) break;
         else paraLines.push(AftLine.text);
       }
       
