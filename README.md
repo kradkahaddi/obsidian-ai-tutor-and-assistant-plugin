@@ -5,11 +5,15 @@ This plugin is in active development and is in alpha stages. Please regularly sa
 
 The gemma hackathon version is present in the release/hackathon branch.
 
+IMPORTANT: ensure that the any zip extracted into plugins/ is not nested. the manifest.json should be directly visible as plugins/inline-ai-tutor-assistant/manifest.json
+also the name of the folder must match the manifest "id" field.
+
 ## Installation
 1. unzip or git clone into the \<vault>/.obsidian/plugins/\<the folder goes here>
-2. if cloning, then do an npm run build
+2. if cloning, then do an npm run build if needed.
 3. open obsidian -> settings -> community plugins -> TURN ON community plugins
 4. switch on the "Inline AI Tutor+Assistant Plugin"
+5. ensure that the folder in plugins/ is not nested and that manifest.json is visible in main sub-directory as plugins/inline-ai-tutor-assistant/manifest.json
 
 ## Usage
 1. set the correct url and model name in the settings tab (open settings and see the plugin name in the left side pane.)
