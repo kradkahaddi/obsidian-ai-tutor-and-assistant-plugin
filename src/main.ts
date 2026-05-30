@@ -23,12 +23,12 @@ export default class InLineAITutorPlugin extends Plugin {
 		await this.loadSettings();
 		await this.loadSystemPrompt();
 
-		this.addRibbonIcon("paper-plane", "Print to console", 
-							()=>{
-									new Notice("testing plugins");
-									console.log('testing plugins');
-								}
-						)
+		// this.addRibbonIcon("paper-plane", "Print to console", 
+		// 					()=>{
+		// 							new Notice("testing plugins");
+		// 							console.log('testing plugins');
+		// 						}
+		// 				)
 		this.addSettingTab(new InLineAITutorSettingsTab(this.app, this));
 		
 		this.registerEditorExtension([viewPluginFactoryMethod(this)])
