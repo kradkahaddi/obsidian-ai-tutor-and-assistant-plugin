@@ -37,7 +37,6 @@ export default class InLineAITutorPlugin extends Plugin {
 			editorCallback: async (_editor, view) => {
 				const buttonCheck = document.getElementById('ai-submit-button');
 				if (buttonCheck === null) return;
-				// buttonCheck.style.display = "none";
 				// @ts-expect-error
 				const editorView = view.editor.cm as EditorView;
 				await submitToLLM(editorView, this);

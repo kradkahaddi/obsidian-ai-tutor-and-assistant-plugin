@@ -35,11 +35,9 @@ export type maybeString = string | null;
 export const IMAGE_FILE_TYPES = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg']
 
 async function formatTextBlob(plugin:InLineAITutorPlugin, text:string, idx:number=1, isDoc:boolean=true){
-  // const regexPattern: RegExp = new RegExp("\!\[\[([\w\s.\-_]+)\]\]", 'g');
   const file = plugin.app.workspace.getActiveFile();
   const sourcePath = file?.path as string;
   const regexPattern = /\!\[\[([\w\s_\-]+\.\w+)\]\]|\!\[.+\]\(([\w\s_\-]+\.\w+)\)/g;
-  // const regexPatternText = /\!\[\[[\w\s_\-]+\.\w+\]\]|\!\[.+\]\(([\w\s_\-]+\.\w+)\)/g
   const lines = text.split('\n');
   const buffer: string[] = [];
   const contentArray:object[] = [];
@@ -50,9 +48,7 @@ async function formatTextBlob(plugin:InLineAITutorPlugin, text:string, idx:numbe
   for (const line of lines) {
     const matches = [...line.matchAll(regexPattern)];
     const chkLine = line.replace(regexPattern, "");
-    // const textMatches = [...line.matchAll(regexPatternText)];
     if (matches.length>0){
-      // extract image, convert to base
       interimObj = []
       if (chkLine.trim()!=="") contentArray.push({type:"text", text: `text inline with image(s) below: ${line.replace(regexPattern, '<imagePlaceHolder>')}`});
 
@@ -70,14 +66,8 @@ async function formatTextBlob(plugin:InLineAITutorPlugin, text:string, idx:numbe
             const posTagStart = isDoc? `$<position_${number}>`: "";
             const posTagEnd   = isDoc? `$</position_${number}>`: "";
 
-            // const befText = textMatches[1]??textMatches[4];
-            // const aftText = textMatches[2]??textMatches[5];
-
             contentArray.push({type:"text", text: posTagStart});
-            
-            // if(befText) contentArray.push({type:"text", text:befText});
             contentArray.push({type:"image_url", image_url: {url:imStr}});
-            // if(aftText) contentArray.push({type:"text", text:aftText});
             contentArray.push({type:"text", text: posTagEnd});
             number++;
           }
@@ -149,13 +139,10 @@ export async function submitToLLM(view:EditorView, plugin:InLineAITutorPlugin){
     
     if (content.contains("@response")) return;
     
-    console.log("submitted at:", submitTime);
-    
     const defaultType = plugin.settings.defaultContext;
     const firstWord = content.split(" ")[0];
     const options = firstWord.split(":").slice(1, undefined);
     if((options.length===1) &&(options[0]==="")) options.length = 0;
-    // let answer:string;
     let beforeText: maybeString=null, afterText: maybeString=null;
 
     if(options.contains('isolated')||((defaultType==="isolated") && (options.length===0))){
@@ -170,21 +157,14 @@ export async function submitToLLM(view:EditorView, plugin:InLineAITutorPlugin){
     }
     else if (options.contains("section")||(defaultType==="section") && (options.length===0)){
       const context = getQueryContext(view, beforeLine, afterLine, true);
-      // const context = getQueryContext(view, beforeLine, afterLine);
       beforeText = context.beforeText;
       afterText = context.afterText;
     }
     
     const answer = await pingLLM(plugin, content, beforeText, afterText);
     if(answer){
-      // new Notice("Response received!")
-      console.log(answer);
       const receiveTime = formatDate(Date.now());
-    
       appendAnswer(view, answer, submitTime, receiveTime);
-    }
-    else{
-      new Notice("Call failed")
     }
 }
 
@@ -247,13 +227,8 @@ async function pingLLM(plugin:InLineAITutorPlugin, query:string, beforeText:mayb
       );
     }
 
-    // const beforeText = `${separator} START OF DOCUMENT PART ABOVE QUERY ${separator}\n${beforeLines.join("\n")}\n${separator} END OF DOCUMENT PART ABOVE QUERY ${separator}\n`;
-    // const afterText  = `${separator} START OF DOCUMENT PART BELOW QUERY ${separator}\n${afterLines.join("\n")}\n${separator} END OF DOCUMENT PART BELOW QUERY ${separator}\n`;;
-
-    //  ${query.split(" ").slice(1, undefined).join(" ")}
     let {contentArray, number} = await formatTextBlob(plugin, query.split(" ").slice(1, undefined).join(" "), num, false)
     const queryArrayFormatted = contentArray;
-    console.log(queryArrayFormatted)
     const payload = {
         url,
         method,
@@ -267,12 +242,9 @@ async function pingLLM(plugin:InLineAITutorPlugin, query:string, beforeText:mayb
             {role: "system", content: plugin.systemPrompt},
             {role: "user", 
               content: [
-                // {type: "text", text: beforeText ?? "\n"},
                 ...befArrayFormatted,
                 {type: "text", text: `<position_${active_num}> *This is the position of the user question/prompt currently posed to you* </position_${active_num}>`},
-                // {type: "text", text: afterText  ?? "\n"},
                 ...aftArrayFormatted,
-                // {type: "text", text: `current user prompt: ${query.split(" ").slice(1, undefined).join(" ")}`},
                 {type: "text", text: `current user prompt: `},
                 ...queryArrayFormatted,
               ]}
@@ -355,12 +327,10 @@ export class InlineAIWidget extends WidgetType {
     button.innerText = "submit";
     button.style.position = "absolute";
     button.style.right = '0px';
-    // button.style.bottom = "0px";
     button.id = "ai-submit-button"
     
     button.onclick = async () => {
         submitToLLM(this.view, this.plugin);
-        // button.style.display = "none";
     };
     queryWrapper.appendChild(button);
     return queryWrapper;
@@ -417,7 +387,6 @@ export function viewPluginFactoryMethod(_plugin:InLineAITutorPlugin){
       
       if(line.text.startsWith("@assistant") && (line.number > 1) && (prevLine?.text.trim() !== "")){
         // this condition means that it is not the first line and it is not a paragraph by itself.
-        console.log("will need to add a line break")
         const insertionStr = "\n"
         setTimeout(()=>{view.dispatch({
           changes: {from:line.from, insert: insertionStr},
