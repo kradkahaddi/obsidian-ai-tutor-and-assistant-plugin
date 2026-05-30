@@ -1,7 +1,5 @@
-// import { syntaxTree } from '@codemirror/language';
 import { RangeSetBuilder } from '@codemirror/state';
 import {requestUrl, Editor, Notice } from "obsidian";
-// import { Buffer } from "buffer";
 import {
   Decoration,
   DecorationSet,
@@ -49,29 +47,13 @@ async function formatTextBlob(plugin:InLineAITutorPlugin, text:string, idx:numbe
   let number = idx;
   let interimObj:object|Array<object>;
   
-  // test pattern 
-  // const text_ = '![[Pasted image 20260517041407.png]]';
-  // const re = /!\[\[([\w\s_-]+\.\w+)\]\]/g;
-  // console.log('testing pattern');
-  // for (const match of text_.matchAll(re)) {
-  //   console.log(match[0]); // whole ![[...]]
-  //   console.log(match[1]); // Pasted image 20260517041407.png
-  // }
-  // console.log("end of pattern test")
-  // test pattern 
-
   for (const line of lines) {
     const matches = [...line.matchAll(regexPattern)];
-    // console.log(matches)
     const chkLine = line.replace(regexPattern, "");
     // const textMatches = [...line.matchAll(regexPatternText)];
-    // console.log('text match on image lines', textMatches)
-    // console.log([...'![[Pasted image 20260517041407.png]]'.matchAll(regexPattern)]);
-    // console.log("LINE:", JSON.stringify(line))
     if (matches.length>0){
       // extract image, convert to base
       interimObj = []
-      // console.log(chkLine);
       if (chkLine.trim()!=="") contentArray.push({type:"text", text: `text inline with image(s) below: ${line.replace(regexPattern, '<imagePlaceHolder>')}`});
 
       for(const match of matches){
@@ -90,13 +72,6 @@ async function formatTextBlob(plugin:InLineAITutorPlugin, text:string, idx:numbe
 
             // const befText = textMatches[1]??textMatches[4];
             // const aftText = textMatches[2]??textMatches[5];
-            
-
-            // if(textMatches.length>0){
-            //   console.log("text matches", textMatches);
-            //   console.log(befText);
-            //   console.log(aftText);
-            // }
 
             contentArray.push({type:"text", text: posTagStart});
             
@@ -134,7 +109,6 @@ async function formatTextBlob(plugin:InLineAITutorPlugin, text:string, idx:numbe
         buffer.length = 0;
   }
 
-  // console.log(contentArray)
   return {contentArray, number}
 }
 function getQueryContext(view:EditorView, beforeLine:number, afterLine:number, sectionOnly:boolean=false)
@@ -166,26 +140,20 @@ function getQueryContext(view:EditorView, beforeLine:number, afterLine:number, s
   const beforeText = beforeLines.join('\n')
   const afterText = afterLines.join('\n')
 
-  // console.log("BEFORE TEXT:", beforeText);
-  // console.log("AFTER TEXT:", afterText);
   return {beforeText, afterText}
 }
 
 export async function submitToLLM(view:EditorView, plugin:InLineAITutorPlugin){
-    // console.log("submitting something!");
-    // new Notice("submitting to LLM");
     const submitTime = formatDate(Date.now());
     const {content, beforeLine, afterLine} = getLLMquery(view);
     
     if (content.contains("@response")) return;
     
     console.log("submitted at:", submitTime);
-    // console.log(content);
     
     const defaultType = plugin.settings.defaultContext;
     const firstWord = content.split(" ")[0];
     const options = firstWord.split(":").slice(1, undefined);
-    // console.log(options)
     if((options.length===1) &&(options[0]==="")) options.length = 0;
     // let answer:string;
     let beforeText: maybeString=null, afterText: maybeString=null;
@@ -207,19 +175,11 @@ export async function submitToLLM(view:EditorView, plugin:InLineAITutorPlugin){
       afterText = context.afterText;
     }
     
-    //       curl http://localhost:1234/api/v1/chat \
-    //   -H "Content-Type: application/json" \
-    //   -d '{
-    //     "model": "google/gemma-4-26b-a4b",
-    //     "system_prompt": "You answer only in rhymes.",
-    //     "input": "What is your favorite color?"
-    // }'
     const answer = await pingLLM(plugin, content, beforeText, afterText);
     if(answer){
       // new Notice("Response received!")
       console.log(answer);
       const receiveTime = formatDate(Date.now());
-      // console.log("received at:", receiveTime);
     
       appendAnswer(view, answer, submitTime, receiveTime);
     }
@@ -258,8 +218,6 @@ async function pingLLM(plugin:InLineAITutorPlugin, query:string, beforeText:mayb
     
     const method = "POST";
 
-    // console.log('before text', beforeText);
-    // console.log('after text', afterText);
     let befArrayFormatted:object[]=[], aftArrayFormatted:object[]=[], num:number=0;
     
     if (beforeText){
@@ -274,7 +232,6 @@ async function pingLLM(plugin:InLineAITutorPlugin, query:string, beforeText:mayb
       );
     }
 
-    // console.log('BEFORE CONTENT', befArrayFormatted);
     const active_num = num;
     num++;
     
@@ -290,11 +247,9 @@ async function pingLLM(plugin:InLineAITutorPlugin, query:string, beforeText:mayb
       );
     }
 
-    // console.log('AFTER CONTENT', aftArrayFormatted);
     // const beforeText = `${separator} START OF DOCUMENT PART ABOVE QUERY ${separator}\n${beforeLines.join("\n")}\n${separator} END OF DOCUMENT PART ABOVE QUERY ${separator}\n`;
     // const afterText  = `${separator} START OF DOCUMENT PART BELOW QUERY ${separator}\n${afterLines.join("\n")}\n${separator} END OF DOCUMENT PART BELOW QUERY ${separator}\n`;;
 
-    // console.log('query', query)
     //  ${query.split(" ").slice(1, undefined).join(" ")}
     let {contentArray, number} = await formatTextBlob(plugin, query.split(" ").slice(1, undefined).join(" "), num, false)
     const queryArrayFormatted = contentArray;
@@ -356,11 +311,9 @@ function getLLMquery(view:EditorView) {
       number--;
       let currLine = view.state.doc.line(number);
       if (currLine.text.trim() === ""){
-        // console.log('breaking point')
         break;
       }
       else{
-        // console.log(`line_qNo: ${number} line: ${currLine.number}`, "text: ", currLine.text)
         allLines.unshift(currLine.text);
       }
     }
@@ -382,7 +335,6 @@ function getLLMquery(view:EditorView) {
 
 }
 
-// import { EmojiWidget } from 'emoji';
 export class InlineAIWidget extends WidgetType {
   constructor(
     private plugin: InLineAITutorPlugin,
@@ -441,8 +393,6 @@ export function viewPluginFactoryMethod(_plugin:InLineAITutorPlugin){
       
       const line = view.state.doc.lineAt(pos);
       let number = line.number;
-      // console.log('start number: ', number)
-      // console.log('current line is:', line.text)
       
       const paraLines: string[] = []
       paraLines.push(line.text)
@@ -462,11 +412,8 @@ export function viewPluginFactoryMethod(_plugin:InLineAITutorPlugin){
       }
       
       const paraText = paraLines.join('\n');
-      // console.log(paraText)
-      // console.log("paraText: ", paraText)
-      
+    
       const prevLine = line.number > 1 ? view.state.doc.line(line.number-1): null;
-      // console.log("previous line: ", prevLine?.text);
       
       if(line.text.startsWith("@assistant") && (line.number > 1) && (prevLine?.text.trim() !== "")){
         // this condition means that it is not the first line and it is not a paragraph by itself.

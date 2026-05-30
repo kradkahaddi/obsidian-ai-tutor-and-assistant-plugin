@@ -23,9 +23,6 @@ export default class InLineAITutorPlugin extends Plugin {
 		await this.loadSettings();
 		await this.loadSystemPrompt();
 
-		// console.log(this.systemPrompt);
-
-		// console.log(this.settings);
 		this.addRibbonIcon("paper-plane", "Print to console", 
 							()=>{
 									new Notice("testing plugins");
@@ -44,7 +41,6 @@ export default class InLineAITutorPlugin extends Plugin {
 				key: "L"
 			}],
 			editorCallback: async (_editor, view) => {
-				// console.log('hot key detected');
 				const buttonCheck = document.getElementById('ai-submit-button');
 				if (buttonCheck === null) return;
 				// buttonCheck.style.display = "none";
